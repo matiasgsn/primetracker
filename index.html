@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primetracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="firebase.js" defer></script>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="key-holder">
+            <input type="text" name="key" class="keyBar" autocomplete="off" placeholder="User Key">
+
+            <div class="btn-holder">
+                <button class="mainBtn" class="mainBtn" id="saveBtn"><img id="saveBtnIcon" src="images/save.svg" draggable="false" alt=""></button>
+                <button class="mainBtn" class="mainBtn" id="loadBtn"><img id="loadBtnIcon" src="images/load.svg" draggable="false" alt=""></button>
+            </div>
+        </div>
+
+        <input type="text" name="search" class="searchBar" autocomplete="off" placeholder="Search">
+
+        <div class="item-group" id="warframe-group">
+            <button class="item-group-tab">Warframes <i class="arrow right"></i></button>
+            <div class="item-holder group-collapsed" id="warframes-holder"> </div>
+        </div>
+
+        <div class="item-group" id="weapons-group">
+            <button class="item-group-tab">Weapons <i class="arrow right"></i></button>
+            <div class="item-holder group-collapsed" id="weapons-holder"> </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
