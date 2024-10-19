@@ -2,14 +2,22 @@
 async function fetchData(){ // Function to fetch all Warframe data
     // Warframes
     try {
-        const response = await fetch("https://api.warframestat.us/warframes//?only=name,isPrime");
+        const response = await fetch("https://api.warframestat.us/warframes//?only=name,components,isPrime");
     
         if (!response.ok){
             throw new Error("Could not fetch resource");
         }    
 
         warframes = await response.json();
-        warframes = warframes.filter((warframe) => warframe.isPrime === true && !warframe.name.includes("<ARCHWING>"))
+        // warframes = warframes.filter((warframe) => warframe.isPrime === true && !warframe.name.includes("<ARCHWING>"))
+        
+        warframes.forEach(warframe => {
+            if (warframe.components){
+                for (let i = 0; i < warframe.components.length; i++){
+                    warframe.components[i] = warframe.components[i].name
+                } 
+            }
+        })
 
         console.log(warframes)
     }
@@ -49,47 +57,42 @@ async function displayData(){
     await new Promise(r => setTimeout(r, 20));
     await fetchData();
 
+    // <div class="item-part" id="warframe-blueprint">
+    //                                 <span class="item-part-name">Blueprint</span>
+    //                                 <select title="${warframe.name}-blueprint" name="item-part-status" class="item-part-status" id="${warframe.name}-blueprint">
+    //                                     <option value="0">Not acquired</option>
+    //                                     <option value="1">Acquired</option>
+    //                                     <option value="2">Built</option>
+    //                                 </select>
+    //                             </div>
+
     // Warframes
     if (warframes) {
         warframes.forEach(warframe => {
-            document.querySelector('#warframes-holder').innerHTML += 
-                        `<div class="item" id='${warframe.name}'>
+            let warframeHolder = document.querySelector('#warframes-holder')
+            let warframeName = warframe.name.replace(/ /g, "-").replace(/&/g, "and").replace(/<ARCHWING>/g, "archwing");
+            warframeHolder.innerHTML += 
+                        `<div class="item" id='${warframeName}'>
                             <button class="item-tab">${warframe.name}</button>
-                            <div class="item-part-holder item-collapsed" id="warframe-part-holder">
-                                <div class="item-part" id="warframe-blueprint">
-                                    <span class="item-part-name">Blueprint</span>
-                                    <select title="${warframe.name}-blueprint" name="item-part-status" class="item-part-status" id="${warframe.name}-blueprint">
-                                        <option value="0">Not acquired</option>
-                                        <option value="1">Acquired</option>
-                                        <option value="2">Built</option>
-                                    </select>
-                                </div>
-                                <div class="item-part" id="warframe-chassis">
-                                    <span class="item-part-name" id="warframe-chassis">Chassis</span>
-                                    <select title="${warframe.name}-chassis" name="item-part-status" class="item-part-status" id="${warframe.name}-chassis">
-                                        <option value="0">Not acquired</option>
-                                        <option value="1">Acquired</option>
-                                        <option value="2">Built</option>
-                                    </select>
-                                </div>
-                                <div class="item-part" id="warframe-neuroptics">
-                                    <span class="item-part-name">Neuroptics</span>
-                                    <select title="${warframe.name}-neuroptics" name="item-part-status" class="item-part-status" id="${warframe.name}-neuroptics">
-                                        <option value="0">Not acquired</option>
-                                        <option value="1">Acquired</option>
-                                        <option value="2">Built</option>
-                                    </select>
-                                </div>
-                                <div class="item-part" id="warframe-systems">
-                                    <span class="item-part-name">Systems</span>
-                                    <select title="${warframe.name}-systems" name="item-part-status" class="item-part-status" id="${warframe.name}-systems">
-                                        <option value="0">Not acquired</option>
-                                        <option value="1">Acquired</option>
-                                        <option value="2">Built</option>
-                                    </select>
-                                </div>
+                            <div class="item-part-holder item-collapsed ${warframeName}-part" id="warframe-part-holder">
                             </div>
-                        </div>`
+                        </div>`;
+            
+            if (warframe.components){
+                for (let i = 0; i < warframe.components.length; i++){
+                    // console.log(warframeHolder.querySelector(`.${warframeName}-part`))
+                    warframeHolder.querySelector(`.${warframeName}-part`).innerHTML +=
+                        `<div class="item-part" id="warframe-${warframe.components[i]}">
+                                    <span class="item-part-name">${warframe.components[i]}</span>
+                                    <select title="${warframe.components[i]}" name="item-part-status" class="item-part-status" id="${warframe.components[i]}">
+                                        <option value="0">Not acquired</option>
+                                        <option value="1">Acquired</option>
+                                        <option value="2">Built</option>
+                                    </select>
+                                </div>`;
+                } 
+            }
+
             // Item collapsing system
             let items = document.querySelector('#warframes-holder').querySelectorAll('.item');
 
@@ -123,7 +126,6 @@ async function displayData(){
         weapons.forEach(weapon => {
             let weaponHolder = document.querySelector('#weapons-holder')
             let weaponName = weapon.name.replace(/ /g, "-").replace(/&/g, "and").replace(/<ARCHWING>/g, "archwing");
-            console.log(weaponHolder)
             weaponHolder.innerHTML += 
                         `<div class="item" id='${weaponName}'>
                             <button class="item-tab">${weapon.name}</button>
@@ -131,20 +133,20 @@ async function displayData(){
                             </div>
                         </div>`;
             
-                        if (weapon.components){
-                            for (let i = 0; i < weapon.components.length; i++){
-                                console.log(weaponHolder.querySelector(`.${weaponName}-part`))
-                                weaponHolder.querySelector(`.${weaponName}-part`).innerHTML +=
-                                    `<div class="item-part" id="weapon-${weapon.components[i]}">
-                                                <span class="item-part-name">${weapon.components[i]}</span>
-                                                <select title="${weapon.components[i]}" name="item-part-status" class="item-part-status" id="${weapon.components[i]}">
-                                                    <option value="0">Not acquired</option>
-                                                    <option value="1">Acquired</option>
-                                                    <option value="2">Built</option>
-                                                </select>
-                                            </div>`;
-                            } 
-                        }
+            if (weapon.components){
+                for (let i = 0; i < weapon.components.length; i++){
+                    // console.log(weaponHolder.querySelector(`.${weaponName}-part`))
+                    weaponHolder.querySelector(`.${weaponName}-part`).innerHTML +=
+                        `<div class="item-part" id="weapon-${weapon.components[i]}">
+                                    <span class="item-part-name">${weapon.components[i]}</span>
+                                    <select title="${weapon.components[i]}" name="item-part-status" class="item-part-status" id="${weapon.components[i]}">
+                                        <option value="0">Not acquired</option>
+                                        <option value="1">Acquired</option>
+                                        <option value="2">Built</option>
+                                    </select>
+                                </div>`;
+                } 
+            }
             
             // Item collapsing system
             let items = document.querySelector('#weapons-holder').querySelectorAll('.item');
